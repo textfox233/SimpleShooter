@@ -2,6 +2,7 @@
 
 
 #include "ShooterCharacter.h"
+#include "Gun.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -15,7 +16,15 @@ AShooterCharacter::AShooterCharacter()
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	// Spawn a gun
+	Gun = GetWorld()->SpawnActor<AGun>(GunClass);
+	// Delete default gun from mesh
+	GetMesh()->HideBoneByName(TEXT("weapon_r"), PBO_None);
+	// attach new gun
+	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+	// set owner to this character (multiplayer & dmg)
+	Gun->SetOwner(this);
 }
 
 // Called every frame
@@ -29,6 +38,8 @@ void AShooterCharacter::Tick(float DeltaTime)
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	// --- AXIS EVENTS --- //
 
 	// "MoveForward" should use W/S keys OR Controller Leftstick Y-Axis
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AShooterCharacter::MoveForward);
@@ -48,10 +59,14 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	// "TurnRate" should use Controller Rightstick X-Axis
 	PlayerInputComponent->BindAxis(TEXT("TurnRate"), this, &AShooterCharacter::TurnRate);
 
+
+	// --- ACTION EVENTS --- //
+
 	// "Jump" should use spacebar key
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &ACharacter::Jump);
 
-
+	// "Shoot" should use spacebar key
+	PlayerInputComponent->BindAction(TEXT("Shoot"), EInputEvent::IE_Pressed, this, &AShooterCharacter::Shoot);
 }
 
 // Positive input is forward
@@ -74,4 +89,9 @@ void AShooterCharacter::LookUpRate(float AxisValue)
 void AShooterCharacter::TurnRate(float AxisValue)
 {
 	AddControllerYawInput(AxisValue * RotationRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AShooterCharacter::Shoot()
+{
+	Gun->PullTrigger();
 }

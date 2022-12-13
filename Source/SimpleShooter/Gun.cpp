@@ -3,7 +3,7 @@
 
 #include "Gun.h"
 #include "Components/SkeletalMeshComponent.h"
-//#include "Engine/EngineTypes.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AGun::AGun()
@@ -18,8 +18,6 @@ AGun::AGun()
 	// Set up attachments
 	SetRootComponent(Root);
 	Mesh->SetupAttachment(Root);
-
-	//Mesh->AttachToComponent(Root, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 // Called when the game starts or when spawned
@@ -36,3 +34,21 @@ void AGun::Tick(float DeltaTime)
 
 }
 
+
+// Called to bind functionality to input
+//void AGun::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+//{
+//	// "Shoot" should use spacebar key
+//	PlayerInputComponent->BindAction(TEXT("Shoot"), EInputEvent::IE_Pressed, this, &AGun::PullTrigger);
+//}
+
+// What happens on trigger pull
+void AGun::PullTrigger()
+{
+	if (MuzzleFlash)
+	{
+		UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, TEXT("MuzzleFlashSocket"));
+	}
+
+	UE_LOG(LogTemp,Warning, TEXT("You've been shot!"))
+}
