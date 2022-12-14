@@ -30,14 +30,20 @@ public:
 
 private:
 	UPROPERTY(VisibleAnywhere)
-	USceneComponent* Root;
+	USceneComponent* Root; // Gun's root component
 
 	UPROPERTY(VisibleAnywhere)
-	USkeletalMeshComponent* Mesh;
+	USkeletalMeshComponent* Mesh; // Gun's actual mesh
 
 	UPROPERTY(EditAnywhere)
-	UParticleSystem* MuzzleFlash;
+	UParticleSystem* MuzzleFlash; // Particle effect that spawns on bullet firing
 
 	UPROPERTY(EditAnywhere)
-	float MaxRange = 10000.f;
+	UParticleSystem* ImpactEffect; // Particle effect that spawns on bullet impact
+
+	UPROPERTY(EditAnywhere)
+	float MaxRange = 10000.f; // Max distance this gun's bullet's will travel
+
+	UPROPERTY(EditAnywhere)
+	float Damage = 10.f; // Damage inflicted by this gun
 };

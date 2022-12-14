@@ -47,32 +47,54 @@ void AGun::Tick(float DeltaTime)
 // What happens on trigger pull
 void AGun::PullTrigger()
 {
-	if (MuzzleFlash)
+	if (MuzzleFlash) // Check for null values, avoid an unreal crash
 	{
 		UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, TEXT("MuzzleFlashSocket"));
 	}
 
-	APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	if (!OwnerPawn) return;
+	APawn* OwnerPawn = Cast<APawn>(GetOwner()); // Pawn with ownership of this gun
+	if (!OwnerPawn) return; // Return early if null, avoid an unreal crash
 
-	AController* OwnerController = OwnerPawn->GetController();
-	if (!OwnerController) return;
+	AController* OwnerController = OwnerPawn->GetController(); // Controller responsible for this gun
+	if (!OwnerController) return; // Return early if null, avoid an unreal crash
 
-	// Get Player Viewpoint
-	FVector Location;	// OUT parameter
-	FRotator Rotation; // OUT parameter
+	// --- Get Player Viewpoint --- //
+	FVector Location;	// Player viewpoint's location
+	FRotator Rotation;	// Player viewpoint's rotation
 	OwnerController->GetPlayerViewPoint(Location, Rotation);
 
+	FHitResult HitResult; // Result of the gun's trajectory
 
-	FHitResult HitResult; // OUT parameter
-	// Get an end point for line tracing
+	// End point for the gun trajectory line trace
 	FVector End = Location + Rotation.Vector() * MaxRange;
-		
-	if (!GetWorld()->LineTraceSingleByChannel(HitResult, Location, End, ECC_GameTraceChannel1)) return; // return if no hit is found
+	
+	// If a hit actually occurs...
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, Location, End, ECC_GameTraceChannel1))
+	{
+		// --- Apply Damage --- //
 
-	DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 20, 16, FColor::Red, true);
+		// Where the shot's coming from
+		FVector ShotDirection = -Rotation.Vector();
 
-	//DrawDebugCamera(GetWorld(), Location, Rotation, 90.f, 2,FColor::Red, true);
+		// Object handling this event
+		FPointDamageEvent DamageEvent(Damage, HitResult, ShotDirection, nullptr);
 
-	UE_LOG(LogTemp,Warning, TEXT("You've been shot!"))
+		// Tell the actor hit to take damage
+		if (HitResult.GetActor())
+		{
+			HitResult.GetActor()->TakeDamage(Damage, DamageEvent, OwnerController, this);
+		}
+
+		// Spawn an effect on impact
+		if (ImpactEffect) // Check for null values, avoid an unreal crash
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, HitResult.Location, ShotDirection.Rotation());
+		}
+
+		// --- DEBUG CORNER --- //
+		//DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 20, 16, FColor::Red, true);
+		//DrawDebugCamera(GetWorld(), Location, Rotation, 90.f, 2,FColor::Red, true);
+
+		UE_LOG(LogTemp, Warning, TEXT("You've been shot!"))
+	}
 }
