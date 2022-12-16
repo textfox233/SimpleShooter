@@ -25,6 +25,9 @@ void AShooterCharacter::BeginPlay()
 	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 	// set owner to this character (multiplayer & dmg)
 	Gun->SetOwner(this);
+
+	// initialise health property
+	Health = MaxHealth;
 }
 
 // Called every frame
@@ -33,6 +36,32 @@ void AShooterCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
+
+float AShooterCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	// process damage in parent
+	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	// update health property
+	Health -= DamageToApply;
+	
+	if (Health < 0.f) // clamp it above minus numbers
+	{
+		Health = 0.f; 
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Health is now: %f"), Health);
+
+	return DamageToApply;
+}
+
+bool AShooterCharacter::IsDead() const
+{
+	// return true if health is equal to 0 (roughly equal; float)
+	return (Health > -0.1f && Health < 0.1f);
+}
+
+// --- Player Input --- //
 
 // Called to bind functionality to input
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
