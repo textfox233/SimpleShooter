@@ -3,6 +3,8 @@
 
 #include "ShooterCharacter.h"
 #include "Gun.h"
+#include "Components/CapsuleComponent.h"
+#include "SimpleShooterGameModeBase.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -51,6 +53,24 @@ float AShooterCharacter::TakeDamage(float DamageAmount, struct FDamageEvent cons
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Health is now: %f"), Health);
+
+	if (IsDead())
+	{
+		// get the game mode
+		ASimpleShooterGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ASimpleShooterGameModeBase>();
+
+		// if GameMode's not a nullptr let it know the pawn's been killed
+		if (GameMode)
+		{
+			GameMode->PawnKilled(this);
+		}
+
+		// detach controller so that the pawn stays dead
+		DetachFromControllerPendingDestroy();
+
+		// remove the capsule so it can be walked over and not consume block any shots
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 
 	return DamageToApply;
 }

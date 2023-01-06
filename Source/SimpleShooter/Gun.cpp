@@ -68,8 +68,13 @@ void AGun::PullTrigger()
 	// End point for the gun trajectory line trace
 	FVector End = Location + Rotation.Vector() * MaxRange;
 	
+	// Add exceptions to the query parameters (don't hit self, etc)
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	Params.AddIgnoredActor(GetOwner());
+
 	// If a hit actually occurs...
-	if (GetWorld()->LineTraceSingleByChannel(HitResult, Location, End, ECC_GameTraceChannel1))
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, Location, End, ECC_GameTraceChannel1, Params))
 	{
 		// --- Apply Damage --- //
 
@@ -94,7 +99,6 @@ void AGun::PullTrigger()
 		// --- DEBUG CORNER --- //
 		//DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 20, 16, FColor::Red, true);
 		//DrawDebugCamera(GetWorld(), Location, Rotation, 90.f, 2,FColor::Red, true);
-
-		UE_LOG(LogTemp, Warning, TEXT("You've been shot!"))
+		//UE_LOG(LogTemp, Warning, TEXT("You've been shot!"))
 	}
 }
