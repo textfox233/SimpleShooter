@@ -4,6 +4,8 @@
 #include "ShooterAIController.h"
 #include "Kismet/GameplayStatics.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "ShooterCharacter.h"
+
 
 void AShooterAIController::BeginPlay()
 {
@@ -24,23 +26,17 @@ void AShooterAIController::BeginPlay()
 void AShooterAIController::Tick(float DeltaTime) // Called every frame
 {
 	Super::Tick(DeltaTime);
+}
 
-	//// pointer to the player pawn
-	//APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+bool AShooterAIController::IsDead() const // used to determine player win condition
+{
+	// find the pawn for this character
+	AShooterCharacter* ControlledCharacter = Cast<AShooterCharacter>(GetPawn());
 
-	//// If LineOfSight
-	//if (LineOfSightTo(PlayerPawn))
-	//{
-	//	// Set player location
-	//	GetBlackboardComponent()->SetValueAsVector(TEXT("PlayerLocation"), PlayerPawn->GetActorLocation());
-
-	//	// Set last known location
-	//	GetBlackboardComponent()->SetValueAsVector(TEXT("LastKnownPlayerLocation"), PlayerPawn->GetActorLocation());
-	//}
-	//// Else
-	//else 
-	//{
-	//	// Clear player location
-	//	GetBlackboardComponent()->ClearValue(TEXT("PlayerLocation"));
-	//}
+	if (ControlledCharacter) // null check
+	{
+		// pass on to evaluate if dead
+		return ControlledCharacter->IsDead();
+	}
+	return true; // mark as dead if pawn can't be found
 }

@@ -18,6 +18,7 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override; // Called every frame
+	bool IsDead() const; // used to determine player win condition
 
 private:
 	UPROPERTY(EditAnywhere)
