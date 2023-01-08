@@ -25,6 +25,9 @@ public:
 	UFUNCTION(BlueprintPure) // doesn't need an execution pin, doesn't change anything
 	bool IsDead() const; // doesn't change any properties, is probably const
 
+	UFUNCTION(BlueprintPure) 
+	float GetHealthPercent() const; // Informs the health bar
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

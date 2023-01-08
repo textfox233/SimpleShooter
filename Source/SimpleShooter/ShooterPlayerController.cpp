@@ -9,6 +9,8 @@ void AShooterPlayerController::GameHasEnded(AActor* EndGameFocus, bool bIsWinner
 {
 	Super::GameHasEnded(EndGameFocus, bIsWinner);
 
+	HUD->RemoveFromViewport();
+
 	if (bIsWinner) // the player has won
 	{
 		// Load win screen widget
@@ -36,4 +38,19 @@ void AShooterPlayerController::GameHasEnded(AActor* EndGameFocus, bool bIsWinner
 
 	// Start timer for restart
 	GetWorldTimerManager().SetTimer(RestartTimer, this, &APlayerController::RestartLevel, RestartDelay);
+}
+
+void AShooterPlayerController::BeginPlay() 
+{
+	Super::BeginPlay();
+
+	// Load HUD widget
+	HUD = CreateWidget(this, HUDClass);
+
+	// null check
+	if (HUD)
+	{
+		// add widget to the viewport
+		HUD->AddToViewport();
+	}
 }

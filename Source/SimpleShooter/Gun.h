@@ -39,11 +39,21 @@ private:
 	UParticleSystem* MuzzleFlash; // Particle effect that spawns on bullet firing
 
 	UPROPERTY(EditAnywhere)
+	USoundBase* MuzzleSound; // Sound effect that spawns on bullet firing
+
+	UPROPERTY(EditAnywhere)
 	UParticleSystem* ImpactEffect; // Particle effect that spawns on bullet impact
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* ImpactSound; // Sound effect that spawns on bullet impact
 
 	UPROPERTY(EditAnywhere)
 	float MaxRange = 10000.f; // Max distance this gun's bullet's will travel
 
 	UPROPERTY(EditAnywhere)
 	float Damage = 10.f; // Damage inflicted by this gun
+
+	bool GunTrace(FHitResult& Hit, FVector& ShotDirection); // perform a line trace to see if the gun should hit something
+
+	AController* GetOwnerController() const; // get the controller responsible for the gun
 };

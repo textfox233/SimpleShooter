@@ -81,6 +81,12 @@ bool AShooterCharacter::IsDead() const
 	return (Health > -0.1f && Health < 0.1f);
 }
 
+// Informs the health bar
+float AShooterCharacter::GetHealthPercent() const
+{
+	return Health / MaxHealth;
+}
+
 // --- Player Input --- //
 
 // Called to bind functionality to input
